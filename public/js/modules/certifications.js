@@ -1,4 +1,4 @@
-﻿import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
+import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { escapeHtml, toDisplayValue } from '../utils/dom.js';
 
 const buildCertificationPayload = (objFormData) => {
@@ -9,6 +9,82 @@ const buildCertificationPayload = (objFormData) => {
     expiration_date: objFormData.get('expiration_date')?.trim() || '',
     credential_url: objFormData.get('credential_url')?.trim() || ''
   };
+};
+
+const clearFieldErrors = (objForm) => {
+  const arrInputs = Array.from(objForm.querySelectorAll('input, textarea, select'));
+  arrInputs.forEach((objInput) => objInput.classList.remove('is-invalid'));
+
+  const arrErrorMessages = Array.from(objForm.querySelectorAll('[data-field-error]'));
+  arrErrorMessages.forEach((objErrorMessage) => {
+    objErrorMessage.textContent = '';
+  });
+};
+
+const applyFieldErrors = (objForm, arrErrors) => {
+  if (!Array.isArray(arrErrors)) {
+    return;
+  }
+
+  arrErrors.forEach((objError) => {
+    if (!objError || typeof objError !== 'object') {
+      return;
+    }
+
+    const strFieldName = objError.field || '';
+    const strMessage = objError.message || 'Invalid value.';
+
+    if (!strFieldName) {
+      return;
+    }
+
+    const objInput = objForm.querySelector(`[name="${strFieldName}"]`);
+    if (objInput) {
+      objInput.classList.add('is-invalid');
+    }
+
+    const objErrorBox = objForm.querySelector(`[data-field-error="${strFieldName}"]`);
+    if (objErrorBox) {
+      objErrorBox.textContent = strMessage;
+    }
+  });
+};
+
+const validateCertificationPayload = (objPayload) => {
+  const arrErrors = [];
+
+  if (!objPayload.certification_name) {
+    arrErrors.push({
+      field: 'certification_name',
+      message: 'Certification name is required.'
+    });
+  }
+
+  if (objPayload.credential_url) {
+    if (!/^https?:\/\//i.test(objPayload.credential_url)) {
+      arrErrors.push({
+        field: 'credential_url',
+        message: 'Credential URL must begin with http:// or https://.'
+      });
+    } else {
+      try {
+        const objUrl = new URL(objPayload.credential_url);
+        if (objUrl.protocol !== 'http:' && objUrl.protocol !== 'https:') {
+          arrErrors.push({
+            field: 'credential_url',
+            message: 'Credential URL must begin with http:// or https://.'
+          });
+        }
+      } catch (_objError) {
+        arrErrors.push({
+          field: 'credential_url',
+          message: 'Credential URL must be a valid URL.'
+        });
+      }
+    }
+  }
+
+  return arrErrors;
 };
 
 const renderCertificationsSection = async (objContext) => {
@@ -49,6 +125,7 @@ const renderCertificationsSection = async (objContext) => {
           <div class="col-md-6">
             <label for="certificationName" class="form-label">Certification Name <span aria-hidden="true">*</span></label>
             <input type="text" id="certificationName" name="certification_name" class="form-control" required value="${escapeHtml(objEditing?.certification_name || '')}" />
+            <div class="invalid-feedback" data-field-error="certification_name"></div>
           </div>
           <div class="col-md-6">
             <label for="certIssuingOrg" class="form-label">Issuing Organization</label>
@@ -65,6 +142,7 @@ const renderCertificationsSection = async (objContext) => {
           <div class="col-md-4">
             <label for="certUrl" class="form-label">Credential URL</label>
             <input type="url" id="certUrl" name="credential_url" class="form-control" value="${escapeHtml(objEditing?.credential_url || '')}" />
+            <div class="invalid-feedback" data-field-error="credential_url"></div>
           </div>
         </div>
 
@@ -105,12 +183,16 @@ const renderCertificationsSection = async (objContext) => {
   objForm.addEventListener('submit', async (objEvent) => {
     objEvent.preventDefault();
     setError('');
+    clearFieldErrors(objForm);
 
     const objFormData = new FormData(objForm);
     const objPayload = buildCertificationPayload(objFormData);
 
-    if (!objPayload.certification_name) {
-      setError('Certification name is required.');
+    const arrFrontendErrors = validateCertificationPayload(objPayload);
+    if (arrFrontendErrors.length > 0) {
+      applyFieldErrors(objForm, arrFrontendErrors);
+      setError('Please correct the highlighted fields.');
+      showToast('Please correct the highlighted fields.', 'error');
       return;
     }
 
@@ -127,6 +209,9 @@ const renderCertificationsSection = async (objContext) => {
       objState.intEditingCertificationId = null;
       await fnRefreshCurrentSection();
     } catch (objError) {
+      if (Array.isArray(objError.arrErrors) && objError.arrErrors.length > 0) {
+        applyFieldErrors(objForm, objError.arrErrors);
+      }
       setError(objError.message || 'Unable to save certification.');
       showToast(objError.message || 'Unable to save certification.', 'error');
     }

@@ -1,4 +1,4 @@
-﻿const validator = require('validator');
+const validator = require('validator');
 
 const isNonEmptyString = (strValue) => {
   return typeof strValue === 'string' && strValue.trim().length > 0;
@@ -31,28 +31,53 @@ const validateRequiredStringField = (objSource, strFieldName, intMaxLength = 255
   return null;
 };
 
-const validateOptionalUrl = (strUrlValue, strFieldName) => {
+const validateOptionalUrlField = (strUrlValue, strFieldName, strFieldLabel = 'URL') => {
   if (!isNonEmptyString(strUrlValue)) {
     return null;
   }
 
-  if (!validator.isURL(strUrlValue.trim(), { require_protocol: true })) {
-    return `${strFieldName} must be a valid URL including http:// or https://.`;
+  const strTrimmedUrl = strUrlValue.trim();
+
+  if (!/^https?:\/\//i.test(strTrimmedUrl)) {
+    return {
+      field: strFieldName,
+      message: `${strFieldLabel} must begin with http:// or https://.`
+    };
+  }
+
+  if (!validator.isURL(strTrimmedUrl, { require_protocol: true, protocols: ['http', 'https'] })) {
+    return {
+      field: strFieldName,
+      message: `${strFieldLabel} must be a valid URL.`
+    };
+  }
+
+  return null;
+};
+
+const validateOptionalUrl = (strUrlValue, strFieldName) => {
+  const objError = validateOptionalUrlField(strUrlValue, strFieldName, strFieldName);
+  return objError ? objError.message : null;
+};
+
+const validateOptionalEmailField = (strEmailValue, strFieldName, strFieldLabel = 'Email') => {
+  if (!isNonEmptyString(strEmailValue)) {
+    return null;
+  }
+
+  if (!validator.isEmail(strEmailValue.trim())) {
+    return {
+      field: strFieldName,
+      message: `${strFieldLabel} must be a valid email address.`
+    };
   }
 
   return null;
 };
 
 const validateOptionalEmail = (strEmailValue, strFieldName) => {
-  if (!isNonEmptyString(strEmailValue)) {
-    return null;
-  }
-
-  if (!validator.isEmail(strEmailValue.trim())) {
-    return `${strFieldName} must be a valid email address.`;
-  }
-
-  return null;
+  const objError = validateOptionalEmailField(strEmailValue, strFieldName, strFieldName);
+  return objError ? objError.message : null;
 };
 
 module.exports = {
@@ -60,5 +85,7 @@ module.exports = {
   normalizeOptionalString,
   validateRequiredStringField,
   validateOptionalUrl,
-  validateOptionalEmail
+  validateOptionalUrlField,
+  validateOptionalEmail,
+  validateOptionalEmailField
 };

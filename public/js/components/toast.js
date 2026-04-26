@@ -1,12 +1,18 @@
-﻿import { byId } from '../utils/dom.js';
+import { byId } from '../utils/dom.js';
 
 const initializeToastSystem = () => {
   const objToastContainer = byId('toastContainer');
 
-  const showToast = (strMessage, strType = 'success') => {
+  const showToast = (strMessage, strType = 'success', objOptions = {}) => {
     if (!objToastContainer) {
       return;
     }
+
+    const blnDefaultAutoDismiss = strType !== 'error';
+    const blnAutoDismiss = typeof objOptions.blnAutoDismiss === 'boolean'
+      ? objOptions.blnAutoDismiss
+      : blnDefaultAutoDismiss;
+    const intDelay = Number.isInteger(objOptions.intDelay) ? objOptions.intDelay : 3500;
 
     const strColorClass = strType === 'error' ? 'text-bg-danger' : 'text-bg-success';
 
@@ -35,7 +41,10 @@ const initializeToastSystem = () => {
 
     objToastContainer.appendChild(objToastElement);
 
-    const objToast = new bootstrap.Toast(objToastElement, { delay: 3500 });
+    const objToast = new bootstrap.Toast(objToastElement, {
+      autohide: blnAutoDismiss,
+      delay: intDelay
+    });
     objToast.show();
 
     objToastElement.addEventListener('hidden.bs.toast', () => {

@@ -1,4 +1,4 @@
-﻿# Resume Builder (CSC3100 Final Project)
+# Resume Builder (CSC3100 Final Project)
 
 ## Overview
 Resume Builder is a local-first single page web application for creating, organizing, tailoring, previewing, and printing resumes.
@@ -15,6 +15,7 @@ The app is designed for class requirements:
 - Resume Builder flow to create named resume versions
 - Resume item selection using checkboxes and saved `resume_items`
 - Resume Preview generated from database-backed selected content
+- AI cover letter generation from selected resume + target job details
 - Print / Save as PDF support using browser print + print CSS
 - Settings screen for local Gemini API key save/clear
 - About / Attributions section in app UI
@@ -43,9 +44,12 @@ npm install
 PORT=3000
 DB_PATH=./db/resume_builder.db
 GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 Notes:
+- `GEMINI_MODEL` defaults to `gemini-2.5-flash` if not set.
+- If Google changes model availability, update `GEMINI_MODEL` in `.env` and restart.
 - `GEMINI_API_KEY` in `.env` is optional for development fallback.
 - Preferred production/class flow is user-supplied key in Settings.
 - Never commit real API keys.
@@ -84,6 +88,20 @@ Important AI behavior:
 - AI suggestions are review-first.
 - No silent overwrite.
 - AI must not invent resume facts.
+
+## AI Cover Letter Usage
+1. Open **Resume Builder**.
+2. In the **AI Cover Letter Generator** section, select a saved resume.
+3. Enter target job title and paste job description.
+4. Optionally include company name.
+5. Click **Generate Cover Letter**.
+6. Review and edit the generated letter in the editable text area.
+7. Use **Copy** when ready.
+
+Important AI behavior:
+- Draft is not auto-saved.
+- User must review before submitting anywhere.
+- AI must not invent facts.
 
 ## Resume Builder Usage
 1. Open **Resume Builder** section.

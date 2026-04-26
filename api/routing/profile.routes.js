@@ -1,12 +1,11 @@
-﻿const express = require('express');
+const express = require('express');
 
 const { all, get, run } = require('../../services/database.service');
 const { sendError } = require('../../utils/responseHelpers');
 const {
   normalizeOptionalString,
-  validateRequiredStringField,
-  validateOptionalEmail,
-  validateOptionalUrl
+  validateOptionalEmailField,
+  validateOptionalUrlField
 } = require('../../utils/validators');
 const { sanitizeRichText, sanitizePlainText } = require('../../utils/sanitize');
 
@@ -33,25 +32,64 @@ const buildProfileValues = (objBody) => {
 const validateProfileBody = (objBody) => {
   const arrErrors = [];
 
-  const strFirstNameError = validateRequiredStringField(objBody, 'first_name');
-  const strLastNameError = validateRequiredStringField(objBody, 'last_name');
-  const strEmailError = validateOptionalEmail(objBody.email, 'email');
-  const strLinkedInError = validateOptionalUrl(objBody.linkedin_url, 'linkedin_url');
-  const strGitHubError = validateOptionalUrl(objBody.github_url, 'github_url');
-  const strPortfolioError = validateOptionalUrl(objBody.portfolio_url, 'portfolio_url');
+  const strFirstName = sanitizePlainText(objBody.first_name || '');
+  const strLastName = sanitizePlainText(objBody.last_name || '');
 
-  [
-    strFirstNameError,
-    strLastNameError,
-    strEmailError,
-    strLinkedInError,
-    strGitHubError,
-    strPortfolioError
-  ].forEach((strError) => {
-    if (strError) {
-      arrErrors.push(strError);
-    }
-  });
+  if (!strFirstName) {
+    arrErrors.push({
+      field: 'first_name',
+      message: 'First name is required.'
+    });
+  } else if (strFirstName.length > 255) {
+    arrErrors.push({
+      field: 'first_name',
+      message: 'First name must be 255 characters or fewer.'
+    });
+  }
+
+  if (!strLastName) {
+    arrErrors.push({
+      field: 'last_name',
+      message: 'Last name is required.'
+    });
+  } else if (strLastName.length > 255) {
+    arrErrors.push({
+      field: 'last_name',
+      message: 'Last name must be 255 characters or fewer.'
+    });
+  }
+
+  const objEmailError = validateOptionalEmailField(objBody.email, 'email', 'Email');
+  if (objEmailError) {
+    arrErrors.push(objEmailError);
+  }
+
+  const objLinkedInError = validateOptionalUrlField(
+    objBody.linkedin_url,
+    'linkedin_url',
+    'LinkedIn URL'
+  );
+  if (objLinkedInError) {
+    arrErrors.push(objLinkedInError);
+  }
+
+  const objGitHubError = validateOptionalUrlField(
+    objBody.github_url,
+    'github_url',
+    'GitHub URL'
+  );
+  if (objGitHubError) {
+    arrErrors.push(objGitHubError);
+  }
+
+  const objPortfolioError = validateOptionalUrlField(
+    objBody.portfolio_url,
+    'portfolio_url',
+    'Portfolio URL'
+  );
+  if (objPortfolioError) {
+    arrErrors.push(objPortfolioError);
+  }
 
   return arrErrors;
 };
@@ -92,7 +130,7 @@ router.post('/', async (objRequest, objResponse, fnNext) => {
     const arrErrors = validateProfileBody(objRequest.body || {});
 
     if (arrErrors.length > 0) {
-      sendError(objResponse, 400, 'Validation failed.', { errors: arrErrors });
+      sendError(objResponse, 400, 'Please correct the highlighted fields.', { errors: arrErrors });
       return;
     }
 
@@ -144,7 +182,7 @@ router.put('/:id', async (objRequest, objResponse, fnNext) => {
     const arrErrors = validateProfileBody(objRequest.body || {});
 
     if (arrErrors.length > 0) {
-      sendError(objResponse, 400, 'Validation failed.', { errors: arrErrors });
+      sendError(objResponse, 400, 'Please correct the highlighted fields.', { errors: arrErrors });
       return;
     }
 

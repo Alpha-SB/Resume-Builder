@@ -1,11 +1,10 @@
-﻿const express = require('express');
+const express = require('express');
 
 const { all, get, run } = require('../../services/database.service');
 const { sendError } = require('../../utils/responseHelpers');
 const {
   normalizeOptionalString,
-  validateRequiredStringField,
-  validateOptionalUrl
+  validateOptionalUrlField
 } = require('../../utils/validators');
 const { sanitizePlainText } = require('../../utils/sanitize');
 
@@ -19,6 +18,35 @@ const buildCertificationValues = (objBody) => {
     expiration_date: normalizeOptionalString(sanitizePlainText(objBody.expiration_date || '')),
     credential_url: normalizeOptionalString(sanitizePlainText(objBody.credential_url || ''))
   };
+};
+
+const validateCertificationBody = (objBody) => {
+  const arrErrors = [];
+  const strCertificationName = sanitizePlainText(objBody.certification_name || '');
+
+  if (!strCertificationName) {
+    arrErrors.push({
+      field: 'certification_name',
+      message: 'Certification name is required.'
+    });
+  } else if (strCertificationName.length > 255) {
+    arrErrors.push({
+      field: 'certification_name',
+      message: 'Certification name must be 255 characters or fewer.'
+    });
+  }
+
+  const objCredentialUrlError = validateOptionalUrlField(
+    objBody.credential_url,
+    'credential_url',
+    'Credential URL'
+  );
+
+  if (objCredentialUrlError) {
+    arrErrors.push(objCredentialUrlError);
+  }
+
+  return arrErrors;
 };
 
 router.get('/', async (_objRequest, objResponse, fnNext) => {
@@ -52,19 +80,10 @@ router.get('/:id', async (objRequest, objResponse, fnNext) => {
 
 router.post('/', async (objRequest, objResponse, fnNext) => {
   try {
-    const arrErrors = [];
-
-    const strNameError = validateRequiredStringField(objRequest.body || {}, 'certification_name');
-    const strUrlError = validateOptionalUrl(objRequest.body?.credential_url, 'credential_url');
-
-    [strNameError, strUrlError].forEach((strError) => {
-      if (strError) {
-        arrErrors.push(strError);
-      }
-    });
+    const arrErrors = validateCertificationBody(objRequest.body || {});
 
     if (arrErrors.length > 0) {
-      sendError(objResponse, 400, 'Validation failed.', { errors: arrErrors });
+      sendError(objResponse, 400, 'Please correct the highlighted fields.', { errors: arrErrors });
       return;
     }
 
@@ -102,19 +121,10 @@ router.put('/:id', async (objRequest, objResponse, fnNext) => {
       return;
     }
 
-    const arrErrors = [];
-
-    const strNameError = validateRequiredStringField(objRequest.body || {}, 'certification_name');
-    const strUrlError = validateOptionalUrl(objRequest.body?.credential_url, 'credential_url');
-
-    [strNameError, strUrlError].forEach((strError) => {
-      if (strError) {
-        arrErrors.push(strError);
-      }
-    });
+    const arrErrors = validateCertificationBody(objRequest.body || {});
 
     if (arrErrors.length > 0) {
-      sendError(objResponse, 400, 'Validation failed.', { errors: arrErrors });
+      sendError(objResponse, 400, 'Please correct the highlighted fields.', { errors: arrErrors });
       return;
     }
 

@@ -1,4 +1,4 @@
-﻿const createInitialState = () => {
+const createInitialState = () => {
   return {
     strCurrentSection: 'dashboard',
     intCurrentResumeId: null,
@@ -9,7 +9,13 @@
     intEditingSkillCategoryId: null,
     intEditingCertificationId: null,
     intEditingAwardId: null,
-    objProfileDraft: null
+    objProfileDraft: null,
+    intCoverLetterResumeId: null,
+    strCoverLetterJobTitle: '',
+    strCoverLetterCompanyName: '',
+    strCoverLetterJobDescription: '',
+    strCoverLetterText: '',
+    arrCoverLetterNotes: []
   };
 };
 

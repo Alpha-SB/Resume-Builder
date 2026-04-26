@@ -1,4 +1,4 @@
-﻿import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
+import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { escapeHtml } from '../utils/dom.js';
 
 const createItemSelectionSet = (arrItems) => {
@@ -38,6 +38,24 @@ const buildCheckbox = ({ strItemType, intItemId, strLabel, blnChecked }) => {
       <label class="form-check-label" for="${strItemType}-${intItemId}">${strLabel}</label>
     </div>
   `;
+};
+
+const buildCoverLetterResumeOptions = (arrResumes, intSelectedResumeId) => {
+  return ['<option value="">Choose a saved resume</option>']
+    .concat((arrResumes || []).map((objResume) => `
+      <option value="${objResume.id}" ${objResume.id === intSelectedResumeId ? 'selected' : ''}>
+        ${escapeHtml(objResume.resume_name)}
+      </option>
+    `))
+    .join('');
+};
+
+const renderCoverLetterNotes = (arrNotes) => {
+  if (!Array.isArray(arrNotes) || arrNotes.length === 0) {
+    return '<li class="text-muted">No notes yet.</li>';
+  }
+
+  return arrNotes.map((strNote) => `<li>${escapeHtml(strNote || '')}</li>`).join('');
 };
 
 const renderResumeBuilderSection = async (objContext) => {
@@ -267,6 +285,24 @@ const renderResumeBuilderSection = async (objContext) => {
       })
     })).join('');
 
+  const intCoverLetterResumeId = Number(objState.intCoverLetterResumeId)
+    || intCurrentResumeId
+    || Number(objSelectedResume?.id)
+    || 0;
+
+  const objCoverLetterResume = (arrResumes || []).find((objResume) => objResume.id === intCoverLetterResumeId) || null;
+
+  const strCoverLetterJobTitle = objState.strCoverLetterJobTitle
+    || objCoverLetterResume?.target_job_title
+    || '';
+  const strCoverLetterCompanyName = objState.strCoverLetterCompanyName
+    || objCoverLetterResume?.target_company
+    || '';
+  const strCoverLetterJobDescription = objState.strCoverLetterJobDescription
+    || objCoverLetterResume?.target_job_description
+    || objState.strAiTargetJobDescription
+    || '';
+
   objElements.objViewContainer.innerHTML = `
     <div class="section-card p-4">
       <h2 class="h4 mb-3">Resume Builder</h2>
@@ -359,6 +395,55 @@ const renderResumeBuilderSection = async (objContext) => {
           <button type="button" class="btn btn-outline-secondary" id="resumeBuilderRefreshButton">Reload Builder Data</button>
         </div>
       </form>
+
+      <hr class="my-4" />
+
+      <section aria-labelledby="coverLetterHeading">
+        <h3 id="coverLetterHeading" class="h5 mb-3">AI Cover Letter Generator</h3>
+        <p class="text-muted mb-3">
+          Generate a draft using selected resume facts and the target job details. Review and edit before using.
+          AI must not invent facts, and nothing is auto-saved.
+        </p>
+
+        <form id="coverLetterForm" novalidate>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="coverLetterResumeId" class="form-label">Saved Resume <span aria-hidden="true">*</span></label>
+              <select id="coverLetterResumeId" class="form-select" name="resume_id">
+                ${buildCoverLetterResumeOptions(arrResumes, intCoverLetterResumeId)}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="coverLetterJobTitle" class="form-label">Job Title <span aria-hidden="true">*</span></label>
+              <input id="coverLetterJobTitle" name="job_title" class="form-control" value="${escapeHtml(strCoverLetterJobTitle)}" />
+            </div>
+            <div class="col-md-4">
+              <label for="coverLetterCompanyName" class="form-label">Company Name</label>
+              <input id="coverLetterCompanyName" name="company_name" class="form-control" value="${escapeHtml(strCoverLetterCompanyName)}" />
+            </div>
+            <div class="col-12">
+              <label for="coverLetterJobDescription" class="form-label">Job Description <span aria-hidden="true">*</span></label>
+              <textarea id="coverLetterJobDescription" name="job_description" class="form-control" rows="5">${escapeHtml(strCoverLetterJobDescription)}</textarea>
+            </div>
+            <div class="col-12">
+              <div class="alert alert-danger d-none" id="coverLetterError" role="alert"></div>
+            </div>
+            <div class="col-12 d-flex flex-wrap gap-2">
+              <button type="submit" class="btn btn-primary" id="generateCoverLetterButton">Generate Cover Letter</button>
+              <button type="button" class="btn btn-outline-secondary" id="copyCoverLetterButton">Copy</button>
+              <button type="button" class="btn btn-outline-danger" id="clearCoverLetterButton">Clear</button>
+            </div>
+            <div class="col-12">
+              <label for="generatedCoverLetter" class="form-label">Generated Cover Letter (Editable)</label>
+              <textarea id="generatedCoverLetter" class="form-control" rows="12">${escapeHtml(objState.strCoverLetterText || '')}</textarea>
+            </div>
+            <div class="col-12">
+              <h4 class="h6">AI Notes</h4>
+              <ul id="coverLetterNotes" class="mb-0">${renderCoverLetterNotes(objState.arrCoverLetterNotes)}</ul>
+            </div>
+          </div>
+        </form>
+      </section>
     </div>
   `;
 
@@ -404,6 +489,9 @@ const renderResumeBuilderSection = async (objContext) => {
     try {
       await apiDelete(`/resumes/${objSelectedResume.id}`);
       objState.intCurrentResumeId = null;
+      if (Number(objState.intCoverLetterResumeId) === Number(objSelectedResume.id)) {
+        objState.intCoverLetterResumeId = null;
+      }
       showToast('Resume deleted.');
       await fnRefreshCurrentSection();
     } catch (objError) {
@@ -477,6 +565,149 @@ const renderResumeBuilderSection = async (objContext) => {
       setError(objError.message || 'Unable to save resume builder data.');
       showToast(objError.message || 'Unable to save resume builder data.', 'error');
     }
+  });
+
+  const objCoverLetterForm = document.getElementById('coverLetterForm');
+  const objCoverLetterResumeId = document.getElementById('coverLetterResumeId');
+  const objCoverLetterJobTitle = document.getElementById('coverLetterJobTitle');
+  const objCoverLetterCompanyName = document.getElementById('coverLetterCompanyName');
+  const objCoverLetterJobDescription = document.getElementById('coverLetterJobDescription');
+  const objGeneratedCoverLetter = document.getElementById('generatedCoverLetter');
+  const objCoverLetterNotes = document.getElementById('coverLetterNotes');
+  const objCoverLetterError = document.getElementById('coverLetterError');
+  const objGenerateCoverLetterButton = document.getElementById('generateCoverLetterButton');
+  const objCopyCoverLetterButton = document.getElementById('copyCoverLetterButton');
+  const objClearCoverLetterButton = document.getElementById('clearCoverLetterButton');
+
+  const setCoverLetterError = (strMessage = '') => {
+    objCoverLetterError.textContent = strMessage;
+    objCoverLetterError.classList.toggle('d-none', !strMessage);
+  };
+
+  const syncCoverLetterDraftState = () => {
+    objState.intCoverLetterResumeId = Number(objCoverLetterResumeId.value) || null;
+    objState.strCoverLetterJobTitle = objCoverLetterJobTitle.value;
+    objState.strCoverLetterCompanyName = objCoverLetterCompanyName.value;
+    objState.strCoverLetterJobDescription = objCoverLetterJobDescription.value;
+    objState.strCoverLetterText = objGeneratedCoverLetter.value;
+  };
+
+  const applyCoverLetterResumeDefaults = (intResumeId) => {
+    const objResume = (arrResumes || []).find((objItem) => objItem.id === intResumeId);
+    if (!objResume) {
+      return;
+    }
+
+    if (!objCoverLetterJobTitle.value.trim()) {
+      objCoverLetterJobTitle.value = objResume.target_job_title || '';
+    }
+
+    if (!objCoverLetterCompanyName.value.trim()) {
+      objCoverLetterCompanyName.value = objResume.target_company || '';
+    }
+
+    if (!objCoverLetterJobDescription.value.trim()) {
+      objCoverLetterJobDescription.value = objResume.target_job_description || '';
+    }
+
+    syncCoverLetterDraftState();
+  };
+
+  objCoverLetterResumeId.addEventListener('change', () => {
+    const intResumeId = Number(objCoverLetterResumeId.value);
+    objState.intCoverLetterResumeId = Number.isInteger(intResumeId) && intResumeId > 0
+      ? intResumeId
+      : null;
+
+    applyCoverLetterResumeDefaults(intResumeId);
+  });
+
+  objCoverLetterJobTitle.addEventListener('input', syncCoverLetterDraftState);
+  objCoverLetterCompanyName.addEventListener('input', syncCoverLetterDraftState);
+  objCoverLetterJobDescription.addEventListener('input', syncCoverLetterDraftState);
+  objGeneratedCoverLetter.addEventListener('input', syncCoverLetterDraftState);
+
+  objCoverLetterForm.addEventListener('submit', async (objEvent) => {
+    objEvent.preventDefault();
+    setCoverLetterError('');
+
+    const intResumeId = Number(objCoverLetterResumeId.value);
+    const strJobTitle = objCoverLetterJobTitle.value.trim();
+    const strCompanyName = objCoverLetterCompanyName.value.trim();
+    const strJobDescription = objCoverLetterJobDescription.value.trim();
+
+    if (!Number.isInteger(intResumeId) || intResumeId <= 0) {
+      setCoverLetterError('Please choose a saved resume first.');
+      return;
+    }
+
+    if (!strJobTitle) {
+      setCoverLetterError('Job title is required.');
+      return;
+    }
+
+    if (!strJobDescription) {
+      setCoverLetterError('Job description is required.');
+      return;
+    }
+
+    objGenerateCoverLetterButton.disabled = true;
+    objGenerateCoverLetterButton.textContent = 'Generating...';
+
+    try {
+      const objResult = await apiPost('/ai/generate-cover-letter', {
+        resumeId: intResumeId,
+        jobTitle: strJobTitle,
+        companyName: strCompanyName,
+        jobDescription: strJobDescription
+      });
+
+      objGeneratedCoverLetter.value = objResult.coverLetter || '';
+      objCoverLetterNotes.innerHTML = renderCoverLetterNotes(objResult.notes || []);
+
+      objState.intCoverLetterResumeId = intResumeId;
+      objState.strCoverLetterJobTitle = strJobTitle;
+      objState.strCoverLetterCompanyName = strCompanyName;
+      objState.strCoverLetterJobDescription = strJobDescription;
+      objState.strCoverLetterText = objResult.coverLetter || '';
+      objState.arrCoverLetterNotes = objResult.notes || [];
+
+      showToast('Cover letter generated. Review and edit before using.');
+    } catch (objError) {
+      setCoverLetterError(objError.message || 'Unable to generate cover letter.');
+      showToast(objError.message || 'Unable to generate cover letter.', 'error');
+    } finally {
+      objGenerateCoverLetterButton.disabled = false;
+      objGenerateCoverLetterButton.textContent = 'Generate Cover Letter';
+    }
+  });
+
+  objCopyCoverLetterButton.addEventListener('click', async () => {
+    const strCoverLetterText = objGeneratedCoverLetter.value.trim();
+    if (!strCoverLetterText) {
+      setCoverLetterError('Generate or enter cover letter text before copying.');
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(strCoverLetterText);
+        showToast('Cover letter copied to clipboard.');
+      } else {
+        showToast('Clipboard API is not available in this browser.', 'error');
+      }
+    } catch (_objClipboardError) {
+      showToast('Unable to copy cover letter text.', 'error');
+    }
+  });
+
+  objClearCoverLetterButton.addEventListener('click', () => {
+    objGeneratedCoverLetter.value = '';
+    objCoverLetterNotes.innerHTML = renderCoverLetterNotes([]);
+    setCoverLetterError('');
+
+    objState.strCoverLetterText = '';
+    objState.arrCoverLetterNotes = [];
   });
 };
 

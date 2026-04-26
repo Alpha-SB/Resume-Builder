@@ -1,4 +1,4 @@
-﻿import { apiGet, apiPost, apiPut } from '../api.js';
+import { apiGet, apiPost, apiPut } from '../api.js';
 import { escapeHtml } from '../utils/dom.js';
 
 const buildProfilePayload = (objFormData) => {
@@ -22,6 +22,92 @@ const setValidationFeedback = (objForm, strMessage = '') => {
     objErrorBox.textContent = strMessage;
     objErrorBox.classList.toggle('d-none', !strMessage);
   }
+};
+
+const clearFieldErrors = (objForm) => {
+  const arrInputs = Array.from(objForm.querySelectorAll('input, textarea, select'));
+  arrInputs.forEach((objInput) => objInput.classList.remove('is-invalid'));
+
+  const arrErrorMessages = Array.from(objForm.querySelectorAll('[data-field-error]'));
+  arrErrorMessages.forEach((objErrorMessage) => {
+    objErrorMessage.textContent = '';
+  });
+};
+
+const applyFieldErrors = (objForm, arrErrors) => {
+  if (!Array.isArray(arrErrors)) {
+    return;
+  }
+
+  arrErrors.forEach((objError) => {
+    if (!objError || typeof objError !== 'object') {
+      return;
+    }
+
+    const strFieldName = objError.field || '';
+    const strMessage = objError.message || 'Invalid value.';
+
+    if (!strFieldName) {
+      return;
+    }
+
+    const objInput = objForm.querySelector(`[name="${strFieldName}"]`);
+    if (objInput) {
+      objInput.classList.add('is-invalid');
+    }
+
+    const objErrorBox = objForm.querySelector(`[data-field-error="${strFieldName}"]`);
+    if (objErrorBox) {
+      objErrorBox.textContent = strMessage;
+    }
+  });
+};
+
+const validateUrlField = (arrErrors, strFieldName, strFieldLabel, strValue) => {
+  if (!strValue) {
+    return;
+  }
+
+  if (!/^https?:\/\//i.test(strValue)) {
+    arrErrors.push({
+      field: strFieldName,
+      message: `${strFieldLabel} must begin with http:// or https://.`
+    });
+    return;
+  }
+
+  try {
+    const objUrl = new URL(strValue);
+    if (objUrl.protocol !== 'http:' && objUrl.protocol !== 'https:') {
+      arrErrors.push({
+        field: strFieldName,
+        message: `${strFieldLabel} must begin with http:// or https://.`
+      });
+    }
+  } catch (_objError) {
+    arrErrors.push({
+      field: strFieldName,
+      message: `${strFieldLabel} must be a valid URL.`
+    });
+  }
+};
+
+const validateProfilePayload = (objPayload) => {
+  const arrErrors = [];
+
+  if (!objPayload.first_name) {
+    arrErrors.push({ field: 'first_name', message: 'First name is required.' });
+  }
+
+  if (!objPayload.last_name) {
+    arrErrors.push({ field: 'last_name', message: 'Last name is required.' });
+  }
+
+  validateUrlField(arrErrors, 'linkedin_url', 'LinkedIn URL', objPayload.linkedin_url);
+  validateUrlField(arrErrors, 'github_url', 'GitHub URL', objPayload.github_url);
+  validateUrlField(arrErrors, 'portfolio_url', 'Portfolio URL', objPayload.portfolio_url);
+
+  return arrErrors;
 };
 
 const renderProfileSection = async (objContext) => {
@@ -50,14 +136,17 @@ const renderProfileSection = async (objContext) => {
           <div class="col-md-6">
             <label for="profileFirstName" class="form-label">First Name <span aria-hidden="true">*</span></label>
             <input type="text" class="form-control" id="profileFirstName" name="first_name" required maxlength="255" value="${escapeHtml(objCurrentProfile?.first_name || '')}" />
+            <div class="invalid-feedback" data-field-error="first_name"></div>
           </div>
           <div class="col-md-6">
             <label for="profileLastName" class="form-label">Last Name <span aria-hidden="true">*</span></label>
             <input type="text" class="form-control" id="profileLastName" name="last_name" required maxlength="255" value="${escapeHtml(objCurrentProfile?.last_name || '')}" />
+            <div class="invalid-feedback" data-field-error="last_name"></div>
           </div>
           <div class="col-md-6">
             <label for="profileEmail" class="form-label">Email</label>
             <input type="email" class="form-control" id="profileEmail" name="email" value="${escapeHtml(objCurrentProfile?.email || '')}" />
+            <div class="invalid-feedback" data-field-error="email"></div>
           </div>
           <div class="col-md-6">
             <label for="profilePhone" class="form-label">Phone</label>
@@ -74,14 +163,17 @@ const renderProfileSection = async (objContext) => {
           <div class="col-md-4">
             <label for="profileLinkedIn" class="form-label">LinkedIn URL</label>
             <input type="url" class="form-control" id="profileLinkedIn" name="linkedin_url" value="${escapeHtml(objCurrentProfile?.linkedin_url || '')}" />
+            <div class="invalid-feedback" data-field-error="linkedin_url"></div>
           </div>
           <div class="col-md-4">
             <label for="profileGitHub" class="form-label">GitHub URL</label>
             <input type="url" class="form-control" id="profileGitHub" name="github_url" value="${escapeHtml(objCurrentProfile?.github_url || '')}" />
+            <div class="invalid-feedback" data-field-error="github_url"></div>
           </div>
           <div class="col-md-4">
             <label for="profilePortfolio" class="form-label">Portfolio URL</label>
             <input type="url" class="form-control" id="profilePortfolio" name="portfolio_url" value="${escapeHtml(objCurrentProfile?.portfolio_url || '')}" />
+            <div class="invalid-feedback" data-field-error="portfolio_url"></div>
           </div>
           <div class="col-12">
             <label for="profileSummary" class="form-label">Professional Summary</label>
@@ -109,12 +201,16 @@ const renderProfileSection = async (objContext) => {
   objForm.addEventListener('submit', async (objEvent) => {
     objEvent.preventDefault();
     setValidationFeedback(objForm, '');
+    clearFieldErrors(objForm);
 
     const objFormData = new FormData(objForm);
     const objPayload = buildProfilePayload(objFormData);
 
-    if (!objPayload.first_name || !objPayload.last_name) {
-      setValidationFeedback(objForm, 'First name and last name are required.');
+    const arrFrontendErrors = validateProfilePayload(objPayload);
+    if (arrFrontendErrors.length > 0) {
+      applyFieldErrors(objForm, arrFrontendErrors);
+      setValidationFeedback(objForm, 'Please correct the highlighted fields.');
+      showToast('Please correct the highlighted fields.', 'error');
       return;
     }
 
@@ -130,7 +226,13 @@ const renderProfileSection = async (objContext) => {
       showToast('Profile saved successfully.');
       await fnRefreshCurrentSection();
     } catch (objError) {
-      setValidationFeedback(objForm, objError.message || 'Unable to save profile.');
+      if (Array.isArray(objError.arrErrors) && objError.arrErrors.length > 0) {
+        applyFieldErrors(objForm, objError.arrErrors);
+        setValidationFeedback(objForm, objError.message || 'Please correct the highlighted fields.');
+      } else {
+        setValidationFeedback(objForm, objError.message || 'Unable to save profile.');
+      }
+
       showToast(objError.message || 'Unable to save profile.', 'error');
     }
   });
