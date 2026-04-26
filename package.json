@@ -1,0 +1,24 @@
+﻿{
+  "name": "resume-builder",
+  "version": "1.0.0",
+  "description": "CSC3100 Final Project - Resume Builder",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "init-db": "node scripts/initDb.js"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "bootswatch": "^5.3.8",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "quill": "^2.0.3",
+    "sanitize-html": "^2.17.0",
+    "sqlite3": "^5.1.7",
+    "validator": "^13.15.15"
+  }
+}

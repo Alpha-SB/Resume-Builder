@@ -1,0 +1,68 @@
+﻿:root {
+  --rb-focus-color: #0d6efd;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1100px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  z-index: 1050;
+  padding: 0.5rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid #ced4da;
+}
+
+.nav-link.active {
+  font-weight: 600;
+}
+
+.section-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.empty-state {
+  border: 1px dashed #ced4da;
+  border-radius: 0.5rem;
+}
+
+.resume-preview-document {
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+
+.resume-preview-document h1,
+.resume-preview-document h2,
+.resume-preview-document h3 {
+  color: #212529;
+}
+
+.resume-preview-document .resume-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+:focus-visible {
+  outline: 3px solid var(--rb-focus-color);
+  outline-offset: 2px;
+}

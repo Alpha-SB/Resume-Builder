@@ -1,0 +1,71 @@
+﻿/*
+  Print layout for resume export.
+  Only the resume preview document should appear in print/PDF output.
+*/
+
+@page {
+  size: auto;
+  margin: 0.5in;
+}
+
+@media print {
+  body {
+    margin: 0;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .resume-print-root,
+  .resume-print-root * {
+    visibility: visible;
+  }
+
+  .resume-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .resume-print-root .resume-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .resume-print-root h1 {
+    font-size: 20pt;
+  }
+
+  .resume-print-root h2 {
+    font-size: 13pt;
+  }
+
+  .resume-print-root h3,
+  .resume-print-root p,
+  .resume-print-root li {
+    font-size: 11pt;
+  }
+
+  .no-print,
+  .toast-container,
+  .modal,
+  .navbar,
+  header,
+  .skip-link,
+  .btn,
+  form {
+    display: none !important;
+  }
+}

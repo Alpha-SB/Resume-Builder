@@ -1,0 +1,2 @@
+﻿-- Seed file intentionally minimal for initial scaffold.
+-- Add development seed records here if needed.
