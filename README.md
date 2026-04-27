@@ -116,8 +116,10 @@ Important AI behavior:
 2. Choose a saved resume.
 3. Click **Print / Save as PDF**.
 4. In browser print dialog, choose **Save as PDF** if desired.
+5. For a clean PDF, open **More settings** and turn off **Headers and footers**.
 
 Print output is controlled by `public/css/print.css` and is designed to show only resume content.
+Browser-added date/title/URL/page numbers are controlled by browser settings, not by application code.
 
 ## Accessibility Notes
 - Forms include visible labels.
