@@ -8,15 +8,25 @@
         Build and manage your profile, education, experience, and reusable resume content in one place.
       </p>
 
-      <div class="alert alert-info" role="status">
+      <div class="alert dashboard-info-alert" role="status">
         Complete your profile and experience first, then use Resume Builder and Resume Preview sections.
       </div>
 
+      <div class="alert dashboard-ai-alert" role="status">
+        To use AI features (like bullet review and cover letter generation), go to Settings and add your Gemini API key first.
+      </div>
+
+      <div class="alert dashboard-seed-alert" role="status">
+        Seeded/sample data may be present for demo and testing. You can remove it anytime from Settings using the
+        "Remove Seeded Data" option.
+      </div>
+
       <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" href="#profile">Go to Profile</a>
-        <a class="btn btn-outline-primary" href="#experience">Go to Experience</a>
-        <a class="btn btn-outline-primary" href="#resume-builder">Go to Resume Builder</a>
-        <a class="btn btn-outline-primary" href="#resume-preview">Go to Resume Preview</a>
+        <a class="btn dashboard-btn-primary" href="#profile">Go to Profile</a>
+        <a class="btn dashboard-btn-secondary" href="#experience">Go to Experience</a>
+        <a class="btn dashboard-btn-secondary" href="#resume-builder">Go to Resume Builder</a>
+        <a class="btn dashboard-btn-secondary" href="#resume-preview">Go to Resume Preview</a>
+        <a class="btn dashboard-btn-secondary" href="#settings">Go to Settings</a>
       </div>
     </div>
   `;

@@ -1,4 +1,4 @@
-﻿import { apiGet, apiPut, apiDelete } from '../api.js';
+import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { escapeHtml } from '../utils/dom.js';
 
 const renderSettingsSection = async (objContext) => {
@@ -35,7 +35,7 @@ const renderSettingsSection = async (objContext) => {
   objElements.objViewContainer.innerHTML = `
     <div class="section-card p-4">
       <h2 class="h4 mb-3">Settings</h2>
-      <p class="text-muted">
+      <p class="settings-description mb-3">
         Gemini API key is stored locally in your application database on this machine when saved.
       </p>
 
@@ -51,7 +51,7 @@ const renderSettingsSection = async (objContext) => {
             autocomplete="off"
             aria-describedby="geminiHelp"
           />
-          <div id="geminiHelp" class="form-text">
+          <div id="geminiHelp" class="form-text settings-help-text">
             This key is optional for now and will be used when AI review flows are enabled.
           </div>
         </div>
@@ -59,16 +59,30 @@ const renderSettingsSection = async (objContext) => {
         <div class="alert alert-danger d-none" data-settings-error></div>
 
         <div class="d-flex flex-wrap gap-2">
-          <button type="submit" class="btn btn-primary">Save Key</button>
-          <button type="button" class="btn btn-outline-danger" id="clearGeminiKeyButton">Clear Key</button>
+          <button type="submit" class="btn settings-btn-primary">Save Key</button>
+          <button type="button" class="btn settings-btn-danger" id="clearGeminiKeyButton">Clear Key</button>
         </div>
       </form>
+
+      <hr class="my-4" />
+
+      <section aria-labelledby="seedDataToolsHeading">
+        <h3 id="seedDataToolsHeading" class="h5 mb-2">Seeded Data Tools</h3>
+        <div class="alert settings-seed-warning mb-3" role="alert">
+          Remove seeded/sample resume content from this local database if you want to start clean.
+          This action does not remove your saved API key in Settings and cannot be undone.
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn settings-btn-danger" id="clearSeededDataButton">Remove Seeded Data</button>
+        </div>
+      </section>
     </div>
   `;
 
   const objForm = document.getElementById('settingsForm');
   const objError = objForm.querySelector('[data-settings-error]');
   const objClearButton = document.getElementById('clearGeminiKeyButton');
+  const objClearSeededDataButton = document.getElementById('clearSeededDataButton');
 
   const setError = (strMessage = '') => {
     objError.textContent = strMessage;
@@ -119,6 +133,28 @@ const renderSettingsSection = async (objContext) => {
 
       setError(objError.message || 'Unable to clear key.');
       showToast(objError.message || 'Unable to clear key.', 'error');
+    }
+  });
+
+  objClearSeededDataButton.addEventListener('click', async () => {
+    setError('');
+
+    const blnConfirmed = await confirmDialog(
+      'Remove seeded/sample resume content from this local database? This cannot be undone.',
+      'Remove Seeded Data'
+    );
+
+    if (!blnConfirmed) {
+      return;
+    }
+
+    try {
+      const objResult = await apiPost('/settings/clear-seeded-data', {});
+      const intTotalDeletedRows = Number(objResult?.total_deleted_rows) || 0;
+      showToast(`Seeded/sample data removed. Rows deleted: ${intTotalDeletedRows}.`);
+    } catch (objError) {
+      setError(objError.message || 'Unable to remove seeded/sample data.');
+      showToast(objError.message || 'Unable to remove seeded/sample data.', 'error');
     }
   });
 };

@@ -125,7 +125,7 @@ Browser-added date/title/URL/page numbers are controlled by browser settings, no
 - Forms include visible labels.
 - Semantic headings are used across sections.
 - Reusable modals and confirmations use Bootstrap dialog behavior.
-- Lighthouse target for accessibility: **93+**.
+
 
 See `LIGHTHOUSE.md` for checklist and run instructions.
 
@@ -137,12 +137,12 @@ See `LIGHTHOUSE.md` for checklist and run instructions.
 
 ## Final Submission Checklist (Placeholder)
 - [ ] Project files complete
-- [ ] AI documentation complete
+- [done] AI documentation complete
 - [ ] Lighthouse evidence screenshot added
 - [ ] Example PDF exported from app
-- [ ] Install/run notes verified
-- [ ] GitHub repository link added
-- [ ] Class-required extra deliverables added
+- [done] Install/run notes verified
+- [done] GitHub repository link added
+- [done] Class-required extra deliverables added
 
-## GitHub Link Placeholder
-- `TBD: add repository URL here`
+## GitHub Link 
+- `https://github.com/Alpha-SB/Resume-Builder`

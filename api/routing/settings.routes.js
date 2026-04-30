@@ -68,6 +68,54 @@ router.post('/', async (objRequest, objResponse, fnNext) => {
   }
 });
 
+router.post('/clear-seeded-data', async (_objRequest, objResponse, fnNext) => {
+  try {
+    // This action removes content tables only.
+    // It intentionally keeps app_settings so saved API keys/preferences remain available.
+    const arrDeletePlan = [
+      { strTable: 'resume_items', strLabel: 'resume_items' },
+      { strTable: 'resumes', strLabel: 'resumes' },
+      { strTable: 'experience_bullets', strLabel: 'experience_bullets' },
+      { strTable: 'experiences', strLabel: 'experiences' },
+      { strTable: 'education', strLabel: 'education' },
+      { strTable: 'skills', strLabel: 'skills' },
+      { strTable: 'skill_categories', strLabel: 'skill_categories' },
+      { strTable: 'certifications', strLabel: 'certifications' },
+      { strTable: 'awards', strLabel: 'awards' },
+      { strTable: 'profiles', strLabel: 'profiles' }
+    ];
+
+    await run('BEGIN TRANSACTION');
+
+    const objDeletedCounts = {};
+    let intTotalDeletedRows = 0;
+
+    try {
+      for (const objDeleteItem of arrDeletePlan) {
+        const objDeleteResult = await run(`DELETE FROM ${objDeleteItem.strTable}`);
+        const intDeletedRows = Number(objDeleteResult.intChanges) || 0;
+
+        objDeletedCounts[objDeleteItem.strLabel] = intDeletedRows;
+        intTotalDeletedRows += intDeletedRows;
+      }
+
+      await run('COMMIT');
+    } catch (objDeleteError) {
+      await run('ROLLBACK');
+      throw objDeleteError;
+    }
+
+    objResponse.json({
+      success: true,
+      message: 'Seeded/sample content data cleared successfully.',
+      deleted: objDeletedCounts,
+      total_deleted_rows: intTotalDeletedRows
+    });
+  } catch (objError) {
+    fnNext(objError);
+  }
+});
+
 router.put('/:key', async (objRequest, objResponse, fnNext) => {
   try {
     const strSettingKey = sanitizePlainText(objRequest.params.key || '');
