@@ -172,14 +172,5 @@ See `LIGHTHOUSE.md` for checklist and run instructions.
 - `LIGHTHOUSE.md` - accessibility checklist and Lighthouse guidance
 - `docs/third-party-attributions.md` - dependency attribution details
 
-## Final Submission Checklist (Placeholder)
-- [ ] Project files complete
-- [done] AI documentation complete
-- [ ] Lighthouse evidence screenshot added
-- [ ] Example PDF exported from app
-- [done] Install/run notes verified
-- [done] GitHub repository link added
-- [done] Class-required extra deliverables added
-
 ## GitHub Link 
 - `https://github.com/Alpha-SB/Resume-Builder`

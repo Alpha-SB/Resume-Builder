@@ -33,8 +33,3 @@
 - Toasts, modal, and confirm dialog use Bootstrap components.
 - Print CSS isolates resume content for PDF export readability.
 
-## Final Submission Reminder
-Include:
-- Lighthouse accessibility score screenshot
-- score value entered above
-- notes on any known accessibility limitations
