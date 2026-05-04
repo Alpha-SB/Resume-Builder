@@ -1,0 +1,163 @@
+﻿:root {
+  --rb-focus-color: #0d6efd;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1100px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  z-index: 1050;
+  padding: 0.5rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid #ced4da;
+}
+
+.nav-link.active {
+  font-weight: 600;
+}
+
+.section-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.empty-state {
+  border: 1px dashed #ced4da;
+  border-radius: 0.5rem;
+}
+
+.resume-preview-document {
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+
+.resume-preview-document h1,
+.resume-preview-document h2,
+.resume-preview-document h3 {
+  color: #212529;
+}
+
+.resume-preview-document .resume-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Settings section contrast helpers for Lighthouse accessibility checks. */
+.settings-description {
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.settings-help-text {
+  color: #495057;
+}
+
+.settings-btn-primary {
+  color: #ffffff;
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.settings-btn-primary:hover,
+.settings-btn-primary:focus,
+.settings-btn-primary:active {
+  color: #ffffff;
+  background-color: #0a53be;
+  border-color: #0a4eb4;
+}
+
+.settings-btn-danger {
+  color: #ffffff;
+  background-color: #b02a37;
+  border-color: #a52834;
+}
+
+.settings-btn-danger:hover,
+.settings-btn-danger:focus,
+.settings-btn-danger:active {
+  color: #ffffff;
+  background-color: #93232f;
+  border-color: #8a212c;
+}
+
+.settings-seed-warning {
+  color: #58151c;
+  background-color: #f8d7da;
+  border-color: #b02a37;
+}
+
+/* Dashboard section contrast helpers for Lighthouse accessibility checks. */
+.dashboard-info-alert {
+  color: #0b2e4f;
+  background-color: #d7ecff;
+  border-color: #8abfe8;
+}
+
+.dashboard-ai-alert {
+  color: #4a2f00;
+  background-color: #fff3cd;
+  border-color: #e6c56a;
+}
+
+.dashboard-seed-alert {
+  color: #0f5132;
+  background-color: #d1e7dd;
+  border-color: #a3cfbb;
+}
+
+.dashboard-btn-primary {
+  color: #ffffff;
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.dashboard-btn-primary:hover,
+.dashboard-btn-primary:focus,
+.dashboard-btn-primary:active {
+  color: #ffffff;
+  background-color: #0a53be;
+  border-color: #0a4eb4;
+}
+
+.dashboard-btn-secondary {
+  color: #ffffff;
+  background-color: #1f4fa9;
+  border-color: #1b4697;
+}
+
+.dashboard-btn-secondary:hover,
+.dashboard-btn-secondary:focus,
+.dashboard-btn-secondary:active {
+  color: #ffffff;
+  background-color: #1a438f;
+  border-color: #173e83;
+}
+
+.about-developer-photo {
+  max-width: 420px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--rb-focus-color);
+  outline-offset: 2px;
+}

@@ -1,0 +1,102 @@
+﻿const renderDashboardSection = async (objContext) => {
+  const { objElements } = objContext;
+
+  objElements.objViewContainer.innerHTML = `
+    <div class="section-card p-4">
+      <h2 class="h4">Welcome to Resume Builder</h2>
+      <p class="mb-3">
+        Build and manage your profile, education, experience, and reusable resume content in one place.
+      </p>
+
+      <div class="alert dashboard-info-alert" role="status">
+        Complete your profile and experience first, then use Resume Builder and Resume Preview sections.
+      </div>
+
+      <div class="alert dashboard-ai-alert" role="status">
+        To use AI features (like bullet review and cover letter generation), go to Settings and add your Gemini API key first.
+      </div>
+
+      <div class="alert dashboard-seed-alert" role="status">
+        Seeded/sample data may be present for demo and testing. You can remove it anytime from Settings using the
+        "Remove Seeded Data" option.
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn dashboard-btn-primary" href="#profile">Go to Profile</a>
+        <a class="btn dashboard-btn-secondary" href="#experience">Go to Experience</a>
+        <a class="btn dashboard-btn-secondary" href="#resume-builder">Go to Resume Builder</a>
+        <a class="btn dashboard-btn-secondary" href="#resume-preview">Go to Resume Preview</a>
+        <a class="btn dashboard-btn-secondary" href="#settings">Go to Settings</a>
+      </div>
+    </div>
+  `;
+};
+
+const renderAboutSection = async (objContext) => {
+  const { objElements } = objContext;
+
+  objElements.objViewContainer.innerHTML = `
+    <div class="section-card p-4">
+      <h2 class="h4">About and Attributions</h2>
+      <p>This project uses local libraries and tools only. No CDN links are used.</p>
+
+      <!-- About the developer section requested for final project submission context and image citation. -->
+      <section class="about-developer-section mb-4" aria-labelledby="aboutDeveloperHeading">
+        <h3 class="h5" id="aboutDeveloperHeading">About the Developer</h3>
+        <p class="mb-3">
+          This is a project for my Web Development class during my senior year at Tennessee Tech University as a
+          Computer Science student.
+        </p>
+        <figure class="mb-2">
+          <img
+            src="/images/coding-panda.png"
+            class="img-fluid rounded border about-developer-photo"
+            alt="AI-generated coding panda image representing the developer."
+          />
+          <figcaption class="mt-2 small text-body-secondary">
+            Image citation: AI-generated image created using ChatGPT (OpenAI).
+          </figcaption>
+        </figure>
+      </section>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Dependency</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Bootstrap</td><td>Responsive layout and UI components</td></tr>
+            <tr><td>Bootswatch (Litera)</td><td>Theme styling</td></tr>
+            <tr><td>Bootstrap Icons</td><td>Icon set</td></tr>
+            <tr><td>Quill</td><td>Optional rich text usage</td></tr>
+            <tr><td>Express</td><td>Backend API server</td></tr>
+            <tr><td>SQLite</td><td>Local database storage</td></tr>
+            <tr><td>Google Gemini API</td><td>AI suggestions for resume bullet improvement</td></tr>
+            <tr><td>dotenv, helmet, cors, validator, sanitize-html</td><td>Configuration, security headers, validation, and sanitization</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 mb-0">
+        Detailed attribution notes are also tracked in <code>docs/third-party-attributions.md</code>.
+      </p>
+    </div>
+  `;
+};
+
+const objDashboardModule = {
+  strTitle: 'Dashboard',
+  renderSection: renderDashboardSection
+};
+
+const objAboutModule = {
+  strTitle: 'About / Attributions',
+  renderSection: renderAboutSection
+};
+
+export {
+  objDashboardModule,
+  objAboutModule
+};

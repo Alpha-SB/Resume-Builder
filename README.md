@@ -1,2 +1,185 @@
-# Resume-Builder
-Web-Development class final project building an application that builds resumes, and generates cover letters for a given job. 
+# Resume Builder (CSC3100 Final Project)
+
+## Overview
+Resume Builder is a local-first single page web application for creating, organizing, tailoring, previewing, and printing resumes.
+
+The app is designed for class requirements:
+- plain HTML/CSS/JavaScript frontend
+- Node.js + Express REST backend
+- SQLite storage
+- local libraries only (no CDN)
+
+## Core Features
+- Profile, Education, Experience, Skills, Certifications, and Awards CRUD
+- Experience bullet CRUD with Gemini AI bullet review suggestions
+- Resume Builder flow to create named resume versions
+- Resume item selection using checkboxes and saved `resume_items`
+- Resume Preview generated from database-backed selected content
+- AI cover letter generation from selected resume + target job details
+- Print / Save as PDF support using browser print + print CSS
+- Settings screen for local Gemini API key save/clear
+- About / Attributions section in app UI
+
+## Tech Stack
+- Frontend: HTML, CSS, JavaScript (SPA hash routing)
+- Backend: Node.js, Express
+- Database: SQLite
+- AI: Google Gemini API
+- UI libraries (local files): Bootstrap, Bootswatch Litera, Bootstrap Icons, Quill
+
+## No CDN Policy
+This project does not use CDN links.
+All frontend library files are stored locally in `public/vendor`.
+
+## Installation
+```bash
+npm install
+```
+
+## Environment Setup
+1. Copy `.env.example` to `.env`
+2. Configure values:
+
+```env
+PORT=3000
+DB_PATH=./db/resume_builder.db
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+Notes:
+- `GEMINI_MODEL` defaults to `gemini-2.5-flash` if not set.
+- If Google changes model availability, update `GEMINI_MODEL` in `.env` and restart.
+- `GEMINI_API_KEY` in `.env` is optional for development fallback.
+- Preferred production/class flow is user-supplied key in Settings.
+- Never commit real API keys.
+
+## Database Setup
+Initialize schema:
+```bash
+npm run init-db
+```
+
+This creates/updates tables from `db/schema.sql` in the configured SQLite DB path.
+
+Seed starter data manually:
+```bash
+npm run seed-db
+```
+
+Seeding safety note:
+- `seed-db` cancels if content tables already have rows, to prevent accidental duplicate demo records.
+- To force seeding anyway, run with `SEED_ALLOW_NONEMPTY=true`.
+
+## Run the App
+```bash
+npm start
+```
+
+App URL: `http://localhost:3000`
+
+Health endpoint: `http://localhost:3000/api/health`
+
+## Run as Electron Desktop App
+Install dependencies first:
+```bash
+npm install
+```
+
+Launch the desktop wrapper:
+```bash
+npm run electron
+```
+
+Desktop runtime behavior:
+- Electron loads the same SPA and REST API from a local Express server.
+- If no `DB_PATH` is configured, Electron defaults SQLite storage to the OS app-data location:
+  - `app.getPath('userData')/resume_builder.db`
+- On first desktop run against a brand-new DB file, Electron applies starter records from `db/seed.sql`.
+- Existing web workflow remains unchanged and still uses current server defaults unless `DB_PATH` is explicitly set.
+
+Optional desktop port override:
+```env
+ELECTRON_SERVER_PORT=3000
+```
+
+## Build Desktop Installer (Windows)
+Create distribution artifacts (NSIS target):
+```bash
+npm run dist
+```
+
+## AI Bullet Review Usage
+1. Open Experience section.
+2. Add or select an experience bullet.
+3. Optionally paste a target job description at top of Experience page.
+4. Click **AI Review** beside a bullet.
+5. Review returned suggestions in modal.
+6. Choose one of:
+   - Accept Improved
+   - Accept ATS
+   - Copy Improved
+   - Copy ATS
+   - Cancel
+
+Important AI behavior:
+- AI suggestions are review-first.
+- No silent overwrite.
+- AI must not invent resume facts.
+
+## AI Cover Letter Usage
+1. Open **Resume Builder**.
+2. In the **AI Cover Letter Generator** section, select a saved resume.
+3. Enter target job title and paste job description.
+4. Optionally include company name.
+5. Click **Generate Cover Letter**.
+6. Review and edit the generated letter in the editable text area.
+7. Use **Copy** when ready.
+
+Important AI behavior:
+- Draft is not auto-saved.
+- User must review before submitting anywhere.
+- AI must not invent facts.
+
+## Resume Builder Usage
+1. Open **Resume Builder** section.
+2. Create new resume or choose existing resume.
+3. Enter resume name + target job information.
+4. Select education, experiences, bullets, skills/categories, certifications, and awards.
+5. Click **Save Resume and Selections**.
+6. Click **Open Preview** to view rendered resume.
+
+## Resume Preview and PDF Export
+1. Open **Resume Preview**.
+2. Choose a saved resume.
+3. Click **Print / Save as PDF**.
+4. In browser print dialog, choose **Save as PDF** if desired.
+5. For a clean PDF, open **More settings** and turn off **Headers and footers**.
+
+Print output is controlled by `public/css/print.css` and is designed to show only resume content.
+Browser-added date/title/URL/page numbers are controlled by browser settings, not by application code.
+
+## Accessibility Notes
+- Forms include visible labels.
+- Semantic headings are used across sections.
+- Reusable modals and confirmations use Bootstrap dialog behavior.
+
+See `LIGHTHOUSE.md` for checklist and run instructions.
+
+## Documentation Files
+- `AGENTS.md` - class/project rules and constraints
+- `AI_USAGE.md` - AI usage policy and implementation notes
+- `LIGHTHOUSE.md` - accessibility checklist and Lighthouse guidance
+- `docs/third-party-attributions.md` - dependency attribution details
+
+## Final Submission Checklist (Placeholder)
+- [ ] Project files complete
+- [done] AI documentation complete
+- [ ] Lighthouse evidence screenshot added
+- [ ] Example PDF exported from app
+- [done] Install/run notes verified
+- [done] GitHub repository link added
+- [done] Class-required extra deliverables added
+
+## GitHub Link 
+- `https://github.com/Alpha-SB/Resume-Builder`

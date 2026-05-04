@@ -1,0 +1,136 @@
+/*
+  Print layout for resume and cover letter export.
+  We use body print-mode classes to control which document is visible.
+*/
+
+@page {
+  size: Letter;
+  margin: 0.35in;
+}
+
+@media print {
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  body {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  body.print-resume #printableResume,
+  body.print-resume #printableResume * {
+    visibility: visible;
+  }
+
+  body.print-cover-letter #printableCoverLetter,
+  body.print-cover-letter #printableCoverLetter * {
+    visibility: visible;
+  }
+
+  body.print-both #printableResume,
+  body.print-both #printableResume *,
+  body.print-both #printableCoverLetter,
+  body.print-both #printableCoverLetter * {
+    visibility: visible;
+  }
+
+  #printableResume,
+  #printableCoverLetter {
+    width: 100%;
+    max-width: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  body.print-resume,
+  body.print-cover-letter,
+  body.print-both {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.print-resume #printableResume,
+  body.print-cover-letter #printableCoverLetter {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  body.print-both #mainContent,
+  body.print-both #viewContainer,
+  body.print-both #resumePreviewSection {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.print-both #printableResume,
+  body.print-both #printableCoverLetter {
+    position: static;
+  }
+
+  body.print-both #printableCoverLetter {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .resume-section,
+  .resume-entry,
+  .cover-letter-block,
+  .resume-document-header,
+  .resume-document-body {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .printable-document h1 {
+    font-size: 20pt;
+  }
+
+  .printable-document h2 {
+    font-size: 13pt;
+  }
+
+  .printable-document h3,
+  .printable-document p,
+  .printable-document li {
+    font-size: 11pt;
+  }
+
+  .no-print,
+  .app-controls,
+  #viewTitle,
+  .toast-container,
+  .toast,
+  .modal,
+  .modal-backdrop,
+  .tooltip,
+  nav,
+  aside,
+  button,
+  select,
+  input,
+  textarea {
+    display: none !important;
+  }
+
+  /* Hide only the app shell header; keep resume/cover-letter document headers visible. */
+  body > header {
+    display: none !important;
+  }
+}
