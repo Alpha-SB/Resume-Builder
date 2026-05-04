@@ -1,8 +1,7 @@
 ﻿# Lighthouse Accessibility Tracking
 
 ## Current Status
-- Latest score: `100`
-- Screenshot evidence path: `TBD (add image before final submission)`
+- Latest score: `96`
 
 ## How To Run Lighthouse (Chrome)
 1. Start app (`npm start`).

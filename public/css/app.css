@@ -153,6 +153,10 @@ body {
   border-color: #173e83;
 }
 
+.about-developer-photo {
+  max-width: 420px;
+}
+
 :focus-visible {
   outline: 3px solid var(--rb-focus-color);
   outline-offset: 2px;

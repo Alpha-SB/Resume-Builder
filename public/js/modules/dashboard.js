@@ -40,6 +40,25 @@ const renderAboutSection = async (objContext) => {
       <h2 class="h4">About and Attributions</h2>
       <p>This project uses local libraries and tools only. No CDN links are used.</p>
 
+      <!-- About the developer section requested for final project submission context and image citation. -->
+      <section class="about-developer-section mb-4" aria-labelledby="aboutDeveloperHeading">
+        <h3 class="h5" id="aboutDeveloperHeading">About the Developer</h3>
+        <p class="mb-3">
+          This is a project for my Web Development class during my senior year at Tennessee Tech University as a
+          Computer Science student.
+        </p>
+        <figure class="mb-2">
+          <img
+            src="/images/coding-panda.png"
+            class="img-fluid rounded border about-developer-photo"
+            alt="AI-generated coding panda image representing the developer."
+          />
+          <figcaption class="mt-2 small text-body-secondary">
+            Image citation: AI-generated image created using ChatGPT (OpenAI).
+          </figcaption>
+        </figure>
+      </section>
+
       <div class="table-responsive">
         <table class="table table-striped align-middle">
           <thead>
