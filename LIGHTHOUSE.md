@@ -1,7 +1,7 @@
 ﻿# Lighthouse Accessibility Tracking
 
 ## Current Status
-- Latest score: `96`
+- Latest score: `100`
 
 ## How To Run Lighthouse (Chrome)
 1. Start app (`npm start`).
