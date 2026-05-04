@@ -62,6 +62,15 @@ npm run init-db
 
 This creates/updates tables from `db/schema.sql` in the configured SQLite DB path.
 
+Seed starter data manually:
+```bash
+npm run seed-db
+```
+
+Seeding safety note:
+- `seed-db` cancels if content tables already have rows, to prevent accidental duplicate demo records.
+- To force seeding anyway, run with `SEED_ALLOW_NONEMPTY=true`.
+
 ## Run the App
 ```bash
 npm start
@@ -70,6 +79,35 @@ npm start
 App URL: `http://localhost:3000`
 
 Health endpoint: `http://localhost:3000/api/health`
+
+## Run as Electron Desktop App
+Install dependencies first:
+```bash
+npm install
+```
+
+Launch the desktop wrapper:
+```bash
+npm run electron
+```
+
+Desktop runtime behavior:
+- Electron loads the same SPA and REST API from a local Express server.
+- If no `DB_PATH` is configured, Electron defaults SQLite storage to the OS app-data location:
+  - `app.getPath('userData')/resume_builder.db`
+- On first desktop run against a brand-new DB file, Electron applies starter records from `db/seed.sql`.
+- Existing web workflow remains unchanged and still uses current server defaults unless `DB_PATH` is explicitly set.
+
+Optional desktop port override:
+```env
+ELECTRON_SERVER_PORT=3000
+```
+
+## Build Desktop Installer (Windows)
+Create distribution artifacts (NSIS target):
+```bash
+npm run dist
+```
 
 ## AI Bullet Review Usage
 1. Open Experience section.
@@ -125,7 +163,6 @@ Browser-added date/title/URL/page numbers are controlled by browser settings, no
 - Forms include visible labels.
 - Semantic headings are used across sections.
 - Reusable modals and confirmations use Bootstrap dialog behavior.
-
 
 See `LIGHTHOUSE.md` for checklist and run instructions.
 

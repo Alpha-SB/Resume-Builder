@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "init-db": "node scripts/initDb.js"
+    "init-db": "node scripts/initDb.js",
+    "seed-db": "node scripts/seedDb.js",
+    "electron": "electron electron/main.js",
+    "electron:dev": "set NODE_ENV=development&& electron electron/main.js",
+    "dist": "electron-builder"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
@@ -20,5 +24,36 @@
     "sanitize-html": "^2.17.0",
     "sqlite3": "^5.1.7",
     "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "electron": "^37.1.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "edu.tntech.csc3100.resumebuilder",
+    "productName": "Resume Builder",
+    "files": [
+      "api/**/*",
+      "db/**/*",
+      "public/**/*",
+      "services/**/*",
+      "utils/**/*",
+      "scripts/**/*",
+      "electron/**/*",
+      "server.js",
+      "package.json",
+      ".env.example",
+      "README.md",
+      "AGENTS.md",
+      "AI_USAGE.md",
+      "LIGHTHOUSE.md",
+      "docs/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }
